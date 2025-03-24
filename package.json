@@ -1,18 +1,5 @@
 {
-  "name": "protrack",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "build:css": "pnpm dlx @tailwindcss/cli -i ./src/tailwind.css -o ./public/tailwind.css --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.6.2",
-  "dependencies": {
-    "@tailwindcss/cli": "^4.0.14",
-    "tailwindcss": "^4.0.14"
-  }
+    "devDependencies": {
+        "tailwindcss": "^3.4.9"
+    }
 }
