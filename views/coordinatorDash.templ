@@ -1,0 +1,169 @@
+package views
+
+import "nimblestack/views/components"
+
+templ CoordinatorDash() {
+@Base("Dashboard", coordinatorDashPage())
+}
+
+templ coordinatorDashPage() {
+<div class="min-h-screen flex bg-gray-500">
+  <!-- Sidebar Navigation -->
+  @components.SideBar("Dashboard", sidebarList())
+  <!-- Main Content Area -->
+  <main class="flex-1 p-10" x-data="data()" x-init="fetchData()">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-white"
+        x-text="'Welcome, ' + (user.firstname ? user.firstname + ' ' + user.lastname : 'Guest') + '!'"></h1>
+      <button @click="fetchUser()" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500 transition">
+        Refresh
+      </button>
+    </div>
+    <!-- User Details Card -->
+    <div class="bg-gray-700 p-6 rounded-lg shadow-lg mb-8">
+      <p class="text-white" x-text="'Email: ' + user.email"></p>
+      <p class="text-white" x-text="'Role: ' + user.role"></p>
+    </div>
+    <!-- Projects Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <!-- Total Projects -->
+      <div class="bg-gray-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+        <div class="flex flex-col items-center">
+          <span class="text-gray-300 text-lg font-semibold mb-2">Total Projects</span>
+          <span class="text-4xl font-bold text-white" x-text="projects.Total"></span>
+        </div>
+      </div>
+      <!-- On Track Projects -->
+      <div class="bg-green-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+        <div class="flex flex-col items-center">
+          <span class="text-white text-lg font-semibold mb-2">On Track</span>
+          <span class="text-4xl font-bold text-white" x-text="projects.OnTrack"></span>
+        </div>
+      </div>
+      <!-- At Risk Projects -->
+      <div class="bg-yellow-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+        <div class="flex flex-col items-center">
+          <span class="text-white text-lg font-semibold mb-2">At Risk</span>
+          <span class="text-4xl font-bold text-white" x-text="projects.AtRisk"></span>
+        </div>
+      </div>
+      <!-- Delayed Projects -->
+      <div class="bg-red-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+        <div class="flex flex-col items-center">
+          <span class="text-white text-lg font-semibold mb-2">Delayed</span>
+          <span class="text-4xl font-bold text-white" x-text="projects.Delayed"></span>
+        </div>
+      </div>
+      <!-- Completed Projects -->
+      <div class="bg-blue-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+        <div class="flex flex-col items-center">
+          <span class="text-white text-lg font-semibold mb-2">Completed</span>
+          <span class="text-4xl font-bold text-white" x-text="projects.Completed"></span>
+        </div>
+      </div>
+    </div>
+    <!-- Students Section -->
+    <div class="mt-8">
+      <template x-for="student in students" :key="student.Id">
+        <div class="bg-gray-600 p-4 mt-2 rounded shadow">
+          <p x-text="'Name: ' + student.Firstname + ' ' + student.Lastname"></p>
+          <p x-text="'Email: ' + student.Email"></p>
+          <form @submit.prevent="assignSupervisor($event, student.Id)">
+            <input type="hidden" name="studentId" :value="student.Id" />
+            <select x-model="student.selectedSupervisor" class="mt-2 p-2 rounded" name="supervisorId">
+              <option value="">Select Supervisor</option>
+              <template x-for="supervisor in supervisors" :key="supervisor.Id">
+                <option x-text="supervisor.Firstname + ' ' + supervisor.Lastname" :value="supervisor.Id"></option>
+              </template>
+            </select>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500 transition ml-2"
+              :disabled="!student.selectedSupervisor">
+              Assign
+            </button>
+          </form>
+          <div x-show="student.message" :class="{'text-green-500': student.success, 'text-red-500': !student.success}"
+            x-text="student.message"></div>
+        </div>
+      </template>
+    </div>
+    <!-- No Students Message -->
+    <div x-show="students.length === 0" class="text-white mt-8">No unassigned students available.</div>
+  </main>
+</div>
+<!-- AlpineJS component for fetching user data -->
+<script>
+  function data() {
+    return {
+      user: {},
+      students: [],
+      supervisors: [],
+      projects: {
+        Total: 0,
+        OnTrack: 0,
+        AtRisk: 0,
+        Delayed: 0,
+        Completed: 0
+      },
+      async assignSupervisor(event, studentId) {
+        const student = this.students.find(s => s.Id === studentId);
+        if (!student || !student.selectedSupervisor) return;
+
+        try {
+          const response = await fetch('/api/coordinator/assign', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              studentId: studentId,
+              supervisorId: student.selectedSupervisor
+            })
+          });
+          if (!response.ok) throw new Error('Assignment failed');
+          student.message = 'Successfully assigned supervisor';
+          student.success = true;
+
+          setTimeout(() => {
+            this.students = this.students.filter(s => s.Id !== studentId);
+          }, 2000);
+
+        } catch (error) {
+          console.error('Error assigning supervisor:', error);
+          student.message = 'Failed to assign supervisor';
+          student.success = false;
+        }
+      },
+      async fetchData() {
+        try {
+          const response = await fetch('/api/me')
+          const data = await response.json();
+          this.user = data;
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+        try {
+          const response = await fetch('/api/coordinator/students')
+          const data = await response.json();
+          this.students = data;
+        } catch (error) {
+          console.error('Error fetching students data: ', error);
+        }
+        try {
+          const response = await fetch('/api/coordinator/supervisors')
+          const data = await response.json();
+          this.supervisors = data;
+        } catch (error) {
+          console.error("Error with fetching supervisors data: ", error)
+        }
+        try {
+          const response = await fetch('/api/coordinator/projects')
+          const data = await response.json();
+          this.projects = data;
+        } catch (error) {
+          console.error("Error with fetching projects data: ", error)
+        }
+      }
+    }
+  }
+</script>
+}

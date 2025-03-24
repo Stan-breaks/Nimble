@@ -1,0 +1,111 @@
+package views
+
+templ Auth() {
+@Base("User Authentication", authPage())
+}
+
+templ authPage() {
+<div class="min-h-screen flex items-start justify-center bg-gray-900 mt-8">
+  <!-- Alpine manages the active tab -->
+  <div class="bg-black rounded-lg shadow-xl w-full max-w-md px-4" x-data="{ tab: 'login' }">
+    <!-- Tabs Header -->
+    <div class="flex">
+      <button @click="tab = 'login'"
+        :class="{'border-b-2 border-blue-600 text-white': tab==='login', 'text-gray-600': tab!=='login'}"
+        class="w-1/2 py-3 text-center font-semibold">
+        Login
+      </button>
+      <button @click="tab = 'register'"
+        :class="{'border-b-2 border-blue-600 text-white': tab==='register', 'text-gray-600': tab!=='register'}"
+        class="w-1/2 py-3 text-center font-semibold">
+        Register
+      </button>
+    </div>
+    <!-- Tabs Content -->
+    <div class="relative px-4 ">
+      <div x-show="tab === 'login'" x-transition.duration.300ms x-cloak class="absolute inset-0 mt-8">
+        @LoginForm()
+      </div>
+      <div x-show="tab === 'register'" x-transition.duration.300ms x-cloak class="absolute inset-0 mt-8 ">
+        @RegisterForm()
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+templ LoginForm() {
+<!-- Using htmx to post asynchronously and swap feedback -->
+<form hx-ext="response-targets" hx-post="/api/login" hx-target-4*="#login-feedback" hx-swap="innerHTML"
+  class="space-y-4">
+  <div id="login-feedback" class="text-red"></div>
+  <div>
+    <label for="login-email" class="block text-sm font-medium text-white">Email</label>
+    <input id="login-email" name="email" type="email" required
+      class="mt-1 block w-full rounded-md border-black border-2 shadow-sm focus:border-white focus:ring-blue-200 px-4 py-2" />
+  </div>
+  <div>
+    <label for="login-role" class="block text-sm font-medium text-white">Role</label>
+    <select id="login-role" name="role"
+      class="mt-1 block w-full rounded-md border-black border-2 shadow-sm focus:border-white focus:ring-blue-200 px-4 py-2">
+      <option value="student">Student</option>
+      <option value="coordinator">coordinator</option>
+      <option value="supervisor">supervisor</option>
+    </select>
+  </div>
+  <div>
+    <label for="login-password" class="block text-sm font-medium text-white">Password</label>
+    <input id="login-password" name="password" type="password" required
+      class="mt-1 block w-full rounded-md border-black border-2 shadow-sm focus:border-white focus:ring-blue-200 px-4 py-2" />
+  </div>
+  <div class="flex justify-center">
+    <button type="submit"
+      class="w-24 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      Login
+    </button>
+  </div>
+</form>
+}
+
+templ RegisterForm() {
+<!-- Using htmx for asynchronous submission on registration -->
+<form hx-ext="response-targets" hx-post="/api/register" hx-target-4*="#login-feedback" hx-swap="innerHTML"
+  class="space-y-4">
+  <div id="register-feedback" class="text-red"></div>
+  <div>
+    <label for="reg-email" class="block text-sm font-medium text-white">Email</label>
+    <input id="reg-email" name="email" type="email" required
+      class="mt-1 block w-full rounded-md border-black border-2 shadow-sm focus:border-white focus:ring-blue-200 px-4 py-2" />
+  </div>
+  <div>
+    <label for="reg-firstname" class="block text-sm font-medium text-white">First Name</label>
+    <input id="reg-firstname" name="firstName" type="text" required
+      class="mt-1 block w-full rounded-md border-black border-2 shadow-sm focus:border-white focus:ring-blue-200 px-4 py-2" />
+  </div>
+  <div>
+    <label for="reg-lastname" class="block text-sm font-medium text-white">Last Name</label>
+    <input id="reg-lastname" name="lastName" type="text" required
+      class="mt-1 block w-full rounded-md border-black border-2 shadow-sm focus:border-white focus:ring-blue-200 px-4 py-2" />
+  </div>
+  <div>
+    <label for="reg-role" class="block text-sm font-medium text-white">Role</label>
+    <select id="reg-role" name="role"
+      class="mt-1 block w-full rounded-md border-black border-2 shadow-sm focus:border-white focus:ring-blue-200 px-4 py-2">
+      <option value="student">Student</option>
+      <option value="coordinator">coordinator</option>
+      <option value="supervisor">supervisor</option>
+    </select>
+  </div>
+  <div>
+    <label for="reg-password" class="block text-sm font-medium text-white">Password</label>
+    <input id="reg-password" name="password" type="password" required
+      class="mt-1 block w-full rounded-md border-black border-2 shadow-sm focus:border-white focus:ring-blue-200 px-4 py-2" />
+  </div>
+  <div class="flex justify-center">
+    <button type="submit"
+      class="w-24 py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+      Register
+    </button>
+  </div>
+</form>
+}

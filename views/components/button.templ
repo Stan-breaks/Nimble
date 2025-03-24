@@ -1,0 +1,12 @@
+package components
+
+templ Button(text string, link string) {
+<div class="text-center mt-8">
+  <a href={ templ.SafeURL(link) }>
+    <button type="button"
+      class="inline-block px-8 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition">
+      { text }
+    </button>
+  </a>
+</div>
+}
