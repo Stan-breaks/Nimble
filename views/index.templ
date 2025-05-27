@@ -1,6 +1,6 @@
 package views
 
-import "nimblestack/views/components"
+import "nimblestack/views/components/button"
 
 templ Index() {
 @Base("ProTrack", mainContent())
@@ -13,7 +13,14 @@ templ mainContent() {
     <h1 class="text-4xl font-bold">ProTrack</h1>
     <p class="mt-3 text-lg">Smart academic project management</p>
     <div class="mt-6">
-      @components.Button("Start Now", "/auth")
+    <a href="/auth"> 
+       @button.Button(button.Props{
+         Class: "inline-block px-8 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition",
+       }){
+        login
+      }
+      </a>
+     
     </div>
   </div>
   <!-- Key Stats -->
@@ -94,7 +101,14 @@ templ mainContent() {
     <h2 class="text-2xl font-semibold">Ready to transform your project management?</h2>
     <p class="mt-2 text-indigo-100">Join universities worldwide improving outcomes with ProTrack</p>
     <div class="mt-6">
-      @components.Button("Get Started", "/auth")
+<a href="/auth"> 
+       @button.Button(button.Props{
+         Class: "inline-block px-8 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition",
+       }){
+        Get Started
+      }
+      </a>
+      //@components.Button("Get Started", "/auth")
     </div>
   </div>
 </div>
