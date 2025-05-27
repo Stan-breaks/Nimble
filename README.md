@@ -21,7 +21,7 @@ _A Modern Go + Templ + Tailwind CSS Starter Template with HTMX, Alpine.js & SQLC
 - **Templ Templates**: Clean, type-safe HTML templating.
 - **Tailwind CSS**: JIT-compiled, utility-first CSS.
 - **HTMX + Alpine.js**: Dynamic UI without JavaScript fatigue.
-- **Docker Containerization**: Run NimbleStack anywhere with a single binary, thanks to our multi-stage Dockerfile.
+- **Podman Containerization**: Run NimbleStack anywhere with a single binary, thanks to our multi-stage Containerfile.
 
 ---
 
@@ -30,7 +30,7 @@ _A Modern Go + Templ + Tailwind CSS Starter Template with HTMX, Alpine.js & SQLC
 - **Zero Deployment Hassle**: Package your app as a single binary with an embedded SQLite database.
 - **Full-Stack Type Safety**: Enjoy a seamless SQLC → Go → Templ workflow.
 - **Local Development Bliss**: No need to install or configure separate database servers.
-- **Portability with Docker**: Our provided Dockerfile lets you build a container that runs consistently on any platform—whether on your local machine, in the cloud, or in CI/CD pipelines.
+- **Portability with Podman or Docker**: Our provided Containerfile lets you build a container that runs consistently on any platform—whether on your local machine, in the cloud, or in CI/CD pipelines.
 - **Modern UI/UX**: Use HTMX and Alpine.js to create responsive, reactive interfaces without heavy frameworks.
 
 ---
@@ -58,7 +58,6 @@ _A Modern Go + Templ + Tailwind CSS Starter Template with HTMX, Alpine.js & SQLC
    ```bash
    pnpm install
    go mod tidy
-   go get modernc.org/sqlite  # SQLite driver
    ```
 
 3. **Generate code:**
@@ -71,12 +70,12 @@ _A Modern Go + Templ + Tailwind CSS Starter Template with HTMX, Alpine.js & SQLC
 4. **Start the server:**
 
    ```bash
-   go run main.go
+   just watch
    ```
 
 5. **(Optional) Build and run with Docker/Podman:**
 
-   The included Dockerfile lets you containerize NimbleStack. For example, to build and run using Podman:
+   The included Containerfile lets you containerize NimbleStack. For example, to build and run using Podman:
 
    ```bash
    podman build -t nimblestack .
@@ -93,7 +92,8 @@ nimblestack/
 ├── sqlc/             # SQLC schema and queries
 ├── public/           # Static assets (CSS, images, etc.)
 ├── views/            # Templ components
-├── handlers/         # HTTP handlers
+├── router/           # HTTP handlers
+├── src/              # Built tailwind css
 ├── Dockerfile        # Multi-stage Dockerfile for containerization
 ├── sqlc.yaml         # SQLC configuration
 └── main.go           # Server entry point
@@ -103,9 +103,9 @@ nimblestack/
 
 ## 🔌 Database Workflow (SQLite + SQLC)
 
-### 1. Create Migration
+### 1. Create Tables
 
-`db/migrations/001_users.up.sql`:
+`sqlc/schema.sql`:
 
 ```sql
 CREATE TABLE users (
@@ -118,7 +118,7 @@ CREATE TABLE users (
 
 ### 2. Write Queries
 
-`db/query/users.sql`:
+`sqlc/queries.sql`:
 
 ```sql
 -- name: CreateUser :one
@@ -137,31 +137,22 @@ WHERE email = ?;
 sqlc generate
 ```
 
-### 4. Use in Handler
+### 4. Use in apis
 
-`handlers/users.go`:
+`apis/users.go`:
 
 ```go
-func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-    // Get DB connection
-    db, _ := sql.Open("sqlite3", ".sqlite.db")
-    defer db.Close()
-
-    queries := db.NewQueries()
+func func (h *AuthApi) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 
     // Type-safe database operation
-    user, err := queries.CreateUser(r.Context(), db.CreateUserParams{
+    user, err := h.queries.CreateUser(r.Context(), db.CreateUserParams{
         Name:  r.FormValue("name"),
         Email: r.FormValue("email"),
     })
-
     if err != nil {
         http.Error(w, "Database error", 500)
         return
     }
-
-    // Render response with Templ
-    components.UserCard(user).Render(r.Context(), w)
 }
 ```
 
