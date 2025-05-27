@@ -8,6 +8,7 @@ import (
 	"nimblestack/database"
 	"nimblestack/router"
 	"os"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -21,13 +22,18 @@ func initializeSchema(db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %v", err)
 	}
-	_, err = tx.Exec(string(schemaSQL))
-	if err != nil {
-		return nil
+	queries := strings.SplitSeq(string(schemaSQL), ";")
+	for query := range queries {
+		if _, err := tx.Exec(query); err != nil {
+			log.Printf("Error executing schema query: %v", err)
+		}
 	}
+
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("failed to commit schema: %v", err)
 	}
+
+	log.Println("Schema initialized successfully")
 	return nil
 }
 
