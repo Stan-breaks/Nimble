@@ -177,7 +177,7 @@ func func (h *AuthApi) CreateUserHandler(w http.ResponseWriter, r *http.Request)
 
 ## Docker & Portability
 
-The provided **Dockerfile** enables you to package NimbleStack into a container that runs anywhere—whether on local development machines, cloud servers, or within CI/CD pipelines. This offers several advantages:
+The provided **Containerfile** enables you to package NimbleStack into a container that runs anywhere—whether on local development machines, cloud servers, or within CI/CD pipelines. This offers several advantages:
 
 - **Consistency**: The container ensures the environment (OS, dependencies, configuration) remains the same across different deployments.
 - **Portability**: You can run your containerized app on any platform that supports Docker or Podman.
