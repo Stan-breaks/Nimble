@@ -1,190 +1,177 @@
-# 🚀 NimbleStack
+# ⚡ Nimble
 
-_A Modern Go + Templ + Tailwind CSS Starter Template with HTMX, Alpine.js & SQLC_
+_A lightweight Go + SQLite + SQLC backend starter. Clone it, build on it._
 
-![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go)  
-![Templ](https://img.shields.io/badge/Templ-0.2+-blue)  
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3+-06B6D4?logo=tailwind-css)  
-![HTMX](https://img.shields.io/badge/HTMX-1.9+-red)  
-![Alpine.js](https://img.shields.io/badge/Alpine.js-3.13+-8BC0D0)  
-![sqlc](https://img.shields.io/badge/sqlc-1.25+-brightgreen)  
+![Go](https://img.shields.io/badge/Go-1.24+-00ADD8?logo=go)
+![sqlc](https://img.shields.io/badge/sqlc-2.0+-brightgreen)
 ![SQLite](https://img.shields.io/badge/SQLite-3+-003B57?logo=sqlite)
 
-**NimbleStack** is a lightning-fast, full-stack starter template designed for developers who want to build modern web apps with minimal boilerplate. It features **SQLite + SQLC** for embedded database magic! ✨
+---
+
+## Why Nimble?
+
+- **Single binary**: Go compiles to one binary. SQLite is embedded. No external database servers.
+- **Type-safe SQL**: SQLC generates Go code from your SQL — no ORMs, no magic, just SQL.
+- **Concurrency-safe**: Pre-configured WAL mode + busy timeout so SQLite won't choke under load.
+- **JWT auth included**: Register, login, and protected routes out of the box.
+- **Container-ready**: Multi-stage Containerfile produces a minimal `scratch` image.
 
 ---
 
-## 🌟 Features
-
-- **Go Backend**: Blazing-fast API and server logic with Go.
-- **SQLite + SQLC**: Type-safe database access with a single-file embedded database.
-- **Templ Templates**: Clean, type-safe HTML templating.
-- **Tailwind CSS**: JIT-compiled, utility-first CSS.
-- **HTMX + Alpine.js**: Dynamic UI without JavaScript fatigue.
-- **Podman Containerization**: Run NimbleStack anywhere with a single binary, thanks to our multi-stage Containerfile.
-
----
-
-## 🛠️ Why NimbleStack?
-
-- **Zero Deployment Hassle**: Package your app as a single binary with an embedded SQLite database.
-- **Full-Stack Type Safety**: Enjoy a seamless SQLC → Go → Templ workflow.
-- **Local Development Bliss**: No need to install or configure separate database servers.
-- **Portability with Podman or Docker**: Our provided Containerfile lets you build a container that runs consistently on any platform—whether on your local machine, in the cloud, or in CI/CD pipelines.
-- **Modern UI/UX**: Use HTMX and Alpine.js to create responsive, reactive interfaces without heavy frameworks.
-
----
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- **Go**: 1.21+
-- **Node.js**: 18+ & pnpm
-- **Tailwind CSS**: Although this template uses Tailwind for styling, please note that the Tailwind CLI is installed via the AUR. Users on other platforms will need to set up their own method for building the CSS.
-- **SQLC**
+- **Go** 1.24+
+- **SQLC** ([install](https://docs.sqlc.dev/en/latest/overview/install.html))
+- **Just** (optional, [install](https://github.com/casey/just))
 
-### Installation
+### Quick Start
 
-1. **Clone the repository:**
+```bash
+git clone https://github.com/Stan-breaks/nimblestack.git
+cd nimblestack
 
-   ```bash
-   git clone https://github.com/Stan-breaks/nimblestack.git
-   cd nimblestack
-   ```
+# Generate type-safe Go code from SQL
+sqlc generate
 
-2. **Install dependencies:**
-
-   ```bash
-   pnpm install
-   go mod tidy
-   ```
-
-3. **Generate code:**
-
-   ```bash
-   templ generate ./views/
-   sqlc generate
-   ```
-
-4. **Start the server:**
-
-   ```bash
-   just watch
-   ```
-
-5. **(Optional) Build and run with Docker/Podman:**
-
-   The included Containerfile lets you containerize NimbleStack. For example, to build and run using Podman:
-
-   ```bash
-   podman build -t nimblestack .
-   podman run -p 8080:8080 nimblestack
-   ```
-
----
-
-## 📂 Project Structure
-
+# Run the server
+go run .
 ```
-nimblestack/
-├── database/         # Generated Go models
-├── sqlc/             # SQLC schema and queries
-├── public/           # Static assets (CSS, images, etc.)
-├── views/            # Templ components
-├── router/           # HTTP handlers
-├── src/              # Built tailwind css
-├── Dockerfile        # Multi-stage Dockerfile for containerization
-├── sqlc.yaml         # SQLC configuration
-└── main.go           # Server entry point
+
+The server starts on `:8080`.
+
+### With Just
+
+```bash
+just build    # sqlc generate + go run
+just watch    # auto-rebuild on .go/.sql changes
 ```
 
 ---
 
-## 🔌 Database Workflow (SQLite + SQLC)
+## Project Structure
 
-### 1. Create Tables
+```
+nimble/
+├── main.go           # Entry point, DB init, server start
+├── database/         # Generated SQLC code (gitignored)
+├── sqlc/
+│   ├── schema.sql    # Table definitions
+│   └── query.sql     # SQL queries → Go functions
+├── router/
+│   ├── router.go     # Route definitions
+│   ├── apis/         # JSON API handlers
+│   └── middleware/    # Auth middleware
+├── example/          # Advanced patterns & reference code
+├── sqlc.yaml         # SQLC config
+├── justfile          # Task runner
+└── Containerfile     # Multi-stage container build
+```
 
-`sqlc/schema.sql`:
+---
+
+## API Endpoints
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `POST` | `/api/register` | ✗ | Create a new user |
+| `POST` | `/api/login` | ✗ | Login, get JWT cookie |
+| `GET` | `/api/me` | ✓ | Get current user |
+
+### Example
+
+```bash
+# Register
+curl -X POST http://localhost:8080/api/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com", "password":"secret123"}'
+
+# Login
+curl -X POST http://localhost:8080/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com", "password":"secret123"}'
+```
+
+---
+
+## Examples
+
+The `example/` directory contains advanced patterns extracted from a real project built with Nimble:
+
+| File | What It Shows |
+|---|---|
+| `schema.sql` | Role-based tables, foreign keys, status tracking with defaults |
+| `query.sql` | FK assignment updates, filtered queries (`IS NULL`), bulk fetch |
+| `api_patterns.go` | Role-based auth switch, safe response types, dashboard aggregation, nullable FKs, duplicate-check pattern |
+
+Use these as reference when building your own features.
+
+---
+
+## Adding Your Own Features
+
+### 1. Define tables in `sqlc/schema.sql`
 
 ```sql
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS posts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  email TEXT NOT NULL UNIQUE,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  user_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
 );
 ```
 
-### 2. Write Queries
-
-`sqlc/queries.sql`:
+### 2. Write queries in `sqlc/query.sql`
 
 ```sql
--- name: CreateUser :one
-INSERT INTO users (name, email)
-VALUES (?, ?)
+-- name: CreatePost :one
+INSERT INTO posts (user_id, title, body)
+VALUES (?, ?, ?)
 RETURNING *;
 
--- name: GetUserByEmail :one
-SELECT * FROM users
-WHERE email = ?;
+-- name: GetPostsByUser :many
+SELECT * FROM posts WHERE user_id = ?;
 ```
 
-### 3. Generate Code
+### 3. Generate & use
 
 ```bash
 sqlc generate
 ```
 
-### 4. Use in apis
+The generated Go functions are ready to use in your API handlers.
 
-`apis/users.go`:
+---
 
-```go
-func func (h *AuthApi) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+## Container Build
 
-    // Type-safe database operation
-    user, err := h.queries.CreateUser(r.Context(), db.CreateUserParams{
-        Name:  r.FormValue("name"),
-        Email: r.FormValue("email"),
-    })
-    if err != nil {
-        http.Error(w, "Database error", 500)
-        return
-    }
-}
+```bash
+# Build
+podman build -t nimble .
+
+# Run
+podman run -p 8080:8080 nimble
 ```
 
----
-
-## 📈 Roadmap
-
-- [ ] Add SQLite migration tool.
-- [ ] HTMX CRUD example with optimistic UI.
-- [ ] SQLite connection pool benchmarks.
-- [ ] ARM64 build support.
+Works with Docker too — just swap `podman` for `docker`.
 
 ---
 
-## 📚 Learning Resources
+## SQLite Concurrency
 
-- [SQLC SQLite Guide](https://docs.sqlc.dev/en/latest/howto/sqlite.html)
-- [Modern SQLite Driver Docs](https://pkg.go.dev/modernc.org/sqlite)
-- [HTMX Patterns](https://htmx.org/examples/)
+Nimble configures SQLite for safe concurrent access:
 
----
+- **WAL mode**: Readers don't block writers (and vice versa)
+- **Busy timeout**: 5s retry instead of immediate `SQLITE_BUSY` errors
+- **Single connection pool**: Prevents Go's `database/sql` from opening multiple writers
 
-## Docker & Portability
-
-The provided **Containerfile** enables you to package NimbleStack into a container that runs anywhere—whether on local development machines, cloud servers, or within CI/CD pipelines. This offers several advantages:
-
-- **Consistency**: The container ensures the environment (OS, dependencies, configuration) remains the same across different deployments.
-- **Portability**: You can run your containerized app on any platform that supports Docker or Podman.
-- **Ease of Deployment**: Single binary + container means minimal configuration and fewer moving parts.
+This handles most web app workloads. For very high write throughput, consider PostgreSQL.
 
 ---
 
 ## License
 
-MIT © [Stan-breaks] | Made with ❤️ for fast web apps
+MIT © [Stan-breaks]

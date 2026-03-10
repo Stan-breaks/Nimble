@@ -16,7 +16,7 @@ func CheckAuth(next http.HandlerFunc, jwtSecret []byte) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("auth_token")
 		if err != nil {
-			http.Redirect(w, r, "/auth/login", http.StatusUnauthorized)
+			http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 			return
 		}
 		tokenString := cookie.Value
@@ -36,12 +36,12 @@ func CheckAuth(next http.HandlerFunc, jwtSecret []byte) http.HandlerFunc {
 				Secure:   true,
 				SameSite: http.SameSiteLaxMode,
 			})
-			http.Redirect(w, r, "auth/login", http.StatusSeeOther)
+			http.Error(w, `{"error":"invalid or expired token"}`, http.StatusUnauthorized)
 			return
 		}
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			http.Redirect(w, r, "/auth/login", http.StatusUnauthorized)
+			http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 			return
 		}
 		ctx := context.WithValue(r.Context(), JWTClaimsKey, claims)
