@@ -32,21 +32,11 @@ _A lightweight Go + SQLite + SQLC backend starter. Clone it, build on it._
 git clone https://github.com/Stan-breaks/nimblestack.git
 cd nimblestack
 
-# Generate type-safe Go code from SQL
-sqlc generate
-
-# Run the server
-go run .
+# Start developing — auto-generates SQLC code and rebuilds on file changes
+just watch
 ```
 
-The server starts on `:8080`.
-
-### With Just
-
-```bash
-just build    # sqlc generate + go run
-just watch    # auto-rebuild on .go/.sql changes
-```
+The server starts on `:8080` and auto-rebuilds when you edit `.go` or `.sql` files.
 
 ---
 
@@ -136,13 +126,9 @@ RETURNING *;
 SELECT * FROM posts WHERE user_id = ?;
 ```
 
-### 3. Generate & use
+### 3. Save & go
 
-```bash
-sqlc generate
-```
-
-The generated Go functions are ready to use in your API handlers.
+`just watch` picks up your `.sql` changes automatically and regenerates the Go code. The generated functions are ready to use in your API handlers.
 
 ---
 
