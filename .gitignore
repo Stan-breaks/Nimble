@@ -1,8 +1,6 @@
 node_modules
 pnpm-lock.yaml
 public
-.air.toml
-*_templ.go
 sqlite.db
 .env
 tmp
