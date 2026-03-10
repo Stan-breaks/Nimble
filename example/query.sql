@@ -87,3 +87,43 @@ SELECT * FROM student_milestones;
 -- Fetch all projects for dashboard stats
 -- name: GetAllProjects :many
 SELECT * FROM projects;
+
+-- ┌──────────────────────────────────┐
+-- │  6. Most Recent Record           │
+-- │  ORDER BY + LIMIT 1             │
+-- └──────────────────────────────────┘
+
+-- Get the latest maintenance record for a bike
+-- name: GetMostRecentMaintenance :one
+SELECT * FROM maintenance_records
+WHERE bike_name = ?
+ORDER BY created_at DESC
+LIMIT 1;
+
+-- ┌──────────────────────────────────┐
+-- │  7. Timestamp Marking            │
+-- │  Set a column to "now"          │
+-- └──────────────────────────────────┘
+
+-- Mark a record as done by stamping the current time
+-- name: MarkMaintenanceAsDone :exec
+UPDATE maintenance_records
+SET ended_at = CURRENT_TIMESTAMP
+WHERE id = ?;
+
+-- ┌──────────────────────────────────┐
+-- │  8. Subquery Filter              │
+-- │  Rows created after an event    │
+-- └──────────────────────────────────┘
+
+-- Get all rides since the last completed maintenance
+-- name: GetRidesSinceLastMaintenance :many
+SELECT * FROM ride_records AS r
+WHERE r.bike_name = ?
+  AND r.created_at > (
+    SELECT m.ended_at
+    FROM maintenance_records AS m
+    WHERE m.bike_name = ?
+    ORDER BY m.ended_at DESC
+    LIMIT 1
+  );
