@@ -24,7 +24,11 @@ func initializeSchema(db *sql.DB) error {
 	}
 	queries := strings.SplitSeq(string(schemaSQL), ";")
 	for query := range queries {
-		if _, err := tx.Exec(query); err != nil {
+		trimmed := strings.TrimSpace(query)
+		if trimmed == "" {
+			continue
+		}
+		if _, err := tx.Exec(trimmed); err != nil {
 			log.Printf("Error executing schema query: %v", err)
 		}
 	}
@@ -44,6 +48,17 @@ func main() {
 	}
 	defer db.Close()
 
+	// SQLite concurrency optimizations
+	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
+		log.Printf("Failed to set WAL mode: %v", err)
+	}
+	if _, err := db.Exec("PRAGMA busy_timeout=5000"); err != nil {
+		log.Printf("Failed to set busy timeout: %v", err)
+	}
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+	db.SetConnMaxLifetime(0)
+
 	if err := initializeSchema(db); err != nil {
 		log.Fatalf("Error initializing schema: %v", err)
 	}
@@ -52,6 +67,6 @@ func main() {
 	jwtSecret := os.Getenv("API_TOKEN")
 	route := router.NewRouter(queries, []byte(jwtSecret))
 
-	log.Println("NimbleStack server started on :8080")
+	log.Println("Nimble server started on :8080")
 	log.Fatal(http.ListenAndServe(":8080", route.Handler()))
 }
