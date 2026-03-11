@@ -29,8 +29,8 @@ _A lightweight Go + SQLite + SQLC backend starter. Clone it, build on it._
 ### Quick Start
 
 ```bash
-git clone https://github.com/Stan-breaks/nimblestack.git
-cd nimblestack
+git clone https://github.com/Stan-breaks/nimble.git
+cd nimble
 
 # Start developing — auto-generates SQLC code and rebuilds on file changes
 just watch
