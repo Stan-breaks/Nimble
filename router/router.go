@@ -24,6 +24,10 @@ func NewRouter(queries *database.Queries, jwtSecret []byte) *Router {
 }
 
 func (r *Router) setupRoutes() {
+	//serving static files
+	r.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.FileServer(http.Dir("./static"))
+	})
 	// Auth
 	authHandler := apis.NewAuthApi(r.queries, r.jwtSecret)
 	r.mux.HandleFunc("/api/register", authHandler.Register)
