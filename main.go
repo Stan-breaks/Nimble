@@ -52,11 +52,13 @@ func main() {
 	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
 		log.Printf("Failed to set WAL mode: %v", err)
 	}
+	if _, err := db.Exec("PRAGMA foreign_keys=ON;"); err != nil {
+		log.Printf("failed to enable foreign keys: %v\n", err)
+		os.Exit(1)
+	}
 	if _, err := db.Exec("PRAGMA busy_timeout=5000"); err != nil {
 		log.Printf("Failed to set busy timeout: %v", err)
 	}
-	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(1)
 	db.SetConnMaxLifetime(0)
 
 	if err := initializeSchema(db); err != nil {
