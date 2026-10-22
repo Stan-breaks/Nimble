@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -42,6 +43,10 @@ func initializeSchema(db *sql.DB) error {
 }
 
 func main() {
+
+	if err := godotenv.Load(".env"); err != nil {
+		log.Println("warning: no .env file found, relying on environment variables")
+	}
 	db, err := sql.Open("sqlite3", "sqlite.db")
 	if err != nil {
 		log.Fatalf("Error opening database: %v", err)
