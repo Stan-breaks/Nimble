@@ -2,9 +2,9 @@ package router
 
 import (
 	"net/http"
-	"nimblestack/database"
-	"nimblestack/router/apis"
-	"nimblestack/router/middleware"
+	"nimble/database"
+	"nimble/router/apis"
+	"nimble/router/middleware"
 )
 
 type Router struct {

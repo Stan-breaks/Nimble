@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"nimblestack/database"
-	"nimblestack/router/middleware"
+	"nimble/database"
+	"nimble/router/middleware"
 	"strconv"
 	"time"
 
