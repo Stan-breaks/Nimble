@@ -1,4 +1,4 @@
-module nimblestack
+module nimble
 
 go 1.24.0
 

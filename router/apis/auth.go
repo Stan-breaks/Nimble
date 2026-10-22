@@ -7,7 +7,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"nimblestack/database"
+	"nimble/database"
 	"time"
 
 	"github.com/golang-jwt/jwt"

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"nimblestack/database"
-	"nimblestack/router"
+	"nimble/database"
+	"nimble/router"
 	"os"
 	"strings"
 
